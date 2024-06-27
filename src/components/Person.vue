@@ -53,25 +53,84 @@
 
         <div>当满足以下条件时</div>
         <div  v-for="(i,index) in form.C.GC" :key="index">
-          <div>{{ index>0?'或':'' }}</div>
+          <div v-if="index==1">
+            <el-select
+              v-model="form.C.GR"
+              style="padding: 0 0px 18px;width: 60px"
+              class="item2"
+            >
+              <el-option
+                v-for="item in fzs"
+                :key="item.FV"
+                :label="item.FN"
+                :value="item.FV"
+              >
+            </el-option>
+            </el-select>
+          </div>
           <div class="box">
-            <div class="cl" v-for="(j,jIndex) in i.C" :key="jIndex">
-              <div style="padding: 0 20px 18px;">{{jIndex>0?'且':'当'}}</div>
-              <div>
-                <el-form-item label="" label-width="0px" prop="email">
-                  <div class="cl">
-                    <el-input class="item" v-model="j.F" />
-                    <el-input class="item" v-model="j.O" />
-                    <el-input class="item" v-model="j.V" />
-                    <div style="width: 30px;">
-                      <el-icon color="#555" v-if="jIndex>0" style="cursor: pointer;" @click="deleteGC(j)">
-                      <Delete />
-                    </el-icon>
-                    </div>
+            <div class="" v-for="(j,jIndex) in i.C" :key="jIndex">
+              <el-row >
+                <el-col :span="3" class="cl" style="justify-content: space-around;">
+                  <div style="padding: 0 12px 18px;" v-if="jIndex<=0">当</div>
+                  <div >
+                    <el-select
+                      v-if="jIndex==1"
+                      v-model="i.R"
+                      style="padding: 0 0px 18px;width: 60px"
+                      class="item2"
+                    >
+                      <el-option
+                        v-for="item in fzs"
+                        :key="item.FV"
+                        :label="item.FN"
+                        :value="item.FV"
+                      >
+                    </el-option>
+                    </el-select>
                   </div>
-                </el-form-item>
-              </div>
-             
+                </el-col>
+                <el-col :span="21">
+                  <el-form-item label="" label-width="0px" prop="email">
+                    <div class="cl">
+                      <el-select
+                        class="item"
+                        v-model="j.F"
+                        placeholder="比较的字段"
+                        style="width: 240px"
+                      >
+                        <el-option
+                          v-for="item in fields"
+                          :key="item.FK"
+                          :label="item.FN"
+                          :value="item.FK"
+                        />
+                      </el-select>
+                      <el-select
+                        class="item"
+                        v-model="j.O"
+                        placeholder="比较操作符"
+                        style="width: 240px"
+                      >
+                        <el-option
+                          v-for="item in symbol"
+                          :key="item.FV"
+                          :label="item.FN"
+                          :value="item.FV"
+                        />
+                      </el-select>
+                      <!-- <el-input class="item" v-model="j.F" /> -->
+                      <!-- <el-input class="item" v-model="j.O" /> -->
+                      <el-input class="item" v-model="j.V" />
+                      <div style="width: 30px;">
+                        <el-icon color="#555" v-if="jIndex>0" style="cursor: pointer;" @click="deleteGC(j)">
+                        <Delete />
+                      </el-icon>
+                      </div>
+                    </div>
+                  </el-form-item>
+                </el-col>
+              </el-row>
             </div>
             <div class="addBtn">
               <el-button link type="primary" @click="addTj(index)">+ 添加条件</el-button>
@@ -102,7 +161,7 @@ const getForm=()=>(
     "RN": "",
     "C": //条件，支持and or 条件组
     {
-        "GR": "OR", // 组之间 为or 逻辑
+        "GR": "", // 组之间 为or 逻辑
         "GC": [ //2个分组
             {
                 "R": "AND", //
@@ -142,36 +201,87 @@ interface Fields {
   FN: string
   FK: string
   VT: string
-  jcr:string
-  jcjg:string
-  jcsj:string
-  wtsl:string
-  sbyc:string
 }
+let fzs=reactive( [
+{
+    "FN": "或",
+    "FV": "OR",
+},
+{
+    "FN": "且",
+    "FV": "AND",
+}])
+let fields=reactive( [
+{
+    "FN": "检查结果",
+    "FK": "FK001",
+    "VT": "1"
+},
+{
+    "FN": "检查人",
+    "FK": "FK002",
+    "VT": "1"
+},
+{
+    "FN": "检查时间",
+    "FK": "FK003",
+    "VT": "2"
+},
+{
+    "FN": "问题数量",
+    "FK": "FK004",
+    "VT": "3"
+},
+{
+    "FN": "设备异常",
+    "FK": "FK005",
+    "VT": "4"
+}])
+let symbol=reactive( [
+{
+    "FN": "=",
+    "FV": "=",
+},
+{
+    "FN": ">",
+    "FV": ">",
+},
+{
+    "FN": ">=",
+    "FV": ">=",
+},
+{
+    "FN": "<",
+    "FV": "<",
+},
+{
+    "FN": "<=",
+    "FV": "<=",
+},
+{
+    "FN": "<>",
+    "FV": "<>",
+},
+{
+    "FN": "in",
+    "FV": "in",
+},
+{
+    "FN": "notin",
+    "FV": "notin",
+},
+{
+    "FN": "BETWEEN",
+    "FV": "BETWEEN",
+},])
 let viewType=ref(0)
 let formData = reactive([] as any)
-  let form  = reactive(getForm() 
-    // {
-    //     "RN": "规则1",
-    //     "C": //条件，支持and or 条件组
-    //     {
-    //         "GR": "", //不分组
-    //         "GC": [ //不分组，组配置节点也会保留认一条分组
-    //             {
-    //                 "R": "AND", //只有一个条件也是用AND
-    //                 "C": [
-    //                 {
-    //                     "F": "FK001", //假设检查结果对应字段编号为FK001
-    //                     "O": "=", //比较操作符=,>,>=,<,<=,<>,in,notin,BETWEEN
-    //                     "VT": "1", //值类型，0 自定义
-    //                     "V": "正常" //比较的值，值域列表自行定义即可
-    //                 }]
-    //             }
-    //         ]
-    //     }
-    // }
-  
-)
+let form  = reactive(getForm())
+let dialogVisible = ref(false)
+const search = ref('')
+
+let tableData=ref([])
+// let tableData: Fields[] = []
 const deleteGC = (jTem:any) => {
   console.log('deleteGC!',jTem)
   form.C.GC.map(e => {
@@ -190,6 +300,7 @@ const addTj = (index:number) => {
   );
 }
 const addTjz = (index:number) => {
+  form.C.GR=form.C.GR?form.C.GR:'OR'
   form.C.GC.push(
     {
       "R": "AND", //只有一个条件也是用AND
@@ -204,11 +315,6 @@ const addTjz = (index:number) => {
     }
   );
 }
-let dialogVisible = ref(false)
-const search = ref('')
-
-let tableData=ref([])
-// let tableData: Fields[] = []
 const filterTableData = computed(() =>
   tableData.value.filter(
     (data:any) =>
@@ -301,4 +407,13 @@ const handleClose = (done: () => void) => {
 .addBtn{
   padding-left: 30px
 }
+::v-deep .el-select__wrapper,
+::v-deep .el-input__wrapper,
+::v-deep .el-select__wrapper.is-hovering:not(.is-focused){
+  box-shadow:none;
+}
+.item ::v-deep .el-input__wrapper,.item ::v-deep .el-select__wrapper{
+  
+    background-color:#f2f3f5; 
+  }
 </style>
